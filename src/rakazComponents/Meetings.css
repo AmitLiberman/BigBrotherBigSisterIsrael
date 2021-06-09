@@ -1,0 +1,119 @@
+.form-group {
+    width: 500px;
+    direction: rtl;
+}
+.form-1{
+    width: 180px;
+    padding-right: 5px;
+    position: absolute;
+}
+.place{
+    width: 180px;
+    position: absolute;
+ padding-right: 5px;
+    margin-top: 80px;
+}
+.descrip{
+    width: 320px;
+    position: absolute;
+    margin-right: 190px;
+    margin-top: 80px;
+}
+.time{
+    width: 180px;
+    position: absolute;
+    margin-right: 190px;
+   
+}
+
+.meeting-title{
+    position: relative;
+    margin-right: 100px;
+    margin-bottom: 30px;
+}
+
+.main form {
+    position: absolute;
+    left: 500px;
+}
+
+.container__table {
+    height: 290px;
+    overflow-y: scroll;
+
+}
+.table-w{
+    padding-right: 5px;
+}
+.meeting-form{
+    width: 500px;
+    float: right;
+}
+
+button {
+    position: relative;
+    left: 500px;
+}
+
+.check-meeting-lbl{
+    position: relative;
+    /* right: 0px; */
+}
+
+.form-check-input{
+    position: relative;
+    right: 1px;
+}
+
+.main-background {
+    background-color: white;
+    padding-bottom: 110px;
+    padding-top: 10px;
+    padding-right: 85px;
+    height: 620px;
+    width: 1536px;
+}
+
+.setup-meeting-btn{
+    width: 125px;
+}
+
+.fLabels {
+    text-align: right;
+    width: 500px;
+}
+.container__table thead th {
+    position: sticky;
+    top: 0px;
+  }
+.container__table td , .container__table th{
+    background-color: #4caf50;
+    border-collapse: collapse;
+   
+}
+.container__table td ,.container__table tbody{
+    background-color:#935fa3 ;
+    color: #ffff;
+   
+  
+}
+.container__table{
+    position: absolute;
+    overflow-y:auto;
+  width: 500px;
+
+}
+.table-w{
+
+    padding-top: 150px;
+}
+.meeting-thi{
+  
+    margin-top: 250px !important;
+}
+.container__table{
+    position: absolute;
+    height: 550px;
+
+
+}

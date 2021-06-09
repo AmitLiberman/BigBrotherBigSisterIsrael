@@ -1,7 +1,11 @@
 import React, { Component } from "react";
 import App from "../mainPageComponents/App";
+import Quest from "../mainPageComponents/MatchQuestion";
+import Queststud from "../mainPageComponents/MatchQuestionstud";
 import LoginForm from "../loginComponents/LoginForm";
 import AdminPage from "../adminComponents/main/AdminPage";
+import RakazPage from '../rakazComponents/RakazPage'
+import InstructorPage from "../InstructorComponents/InstructorPage";
 import firebase from "../config/Firebase"
 
 class AppIndex extends Component {
@@ -9,20 +13,47 @@ class AppIndex extends Component {
         super(props);
         this.state = {
             isLoggedIn: false,
-            isAdmin: false
+            isAdmin: false,
+            isRakaz: false,
+            isInstructor : false,
+            isfirst : "",
+            filled: false
         };
         this.usersRef = firebase.firestore().collection('Users');
     }
 
     determineIfAdmin = (type) => {
-        if (type === "אדמין" || this.state.isAdmin)
-            this.setState({ isAdmin: true });
-        else
-            this.setState({ isAdmin: false });
+        if (type === "אדמין" || this.state.isAdmin) {
+            this.setState({isAdmin: true});
+        }
+        else if (type === "רכז" || this.state.isRakaz){
+
+            this.setState({...this.state, isRakaz: true});
+        }
+        else if (type === "מדריך" || this.state.isRakaz){
+
+            this.setState({...this.state,  isInstructor: true});
+        }
+
+        else {
+            this.setState({...this.state, isAdmin: false, isRakaz: false, isInstructor: false});
+        }
+    }
+
+    filled = () => {
+        this.setState({ filled: true})
     }
 
     exitAdmin = () => {
         this.setState({ isLoggedIn: false, isAdmin: false })
+    }
+
+    exitRakaz = () => {
+        this.setState({ isLoggedIn: false, isRakaz: false })
+    }
+
+    exitInstructor = () => {
+        this.setState({ isLoggedIn: false, isInstructor: false })
     }
 
     onAuthChanged = (user) => {
@@ -32,10 +63,13 @@ class AppIndex extends Component {
             var userUid = user.uid;
             this.usersRef.doc(userUid).get()
                 .then(doc => {
-                    if (doc.exists)
+                    if (doc.exists) {
                         userType = doc.data().type;
-                    else
+                        this.state.isfirst = doc;
+                    }
+                        else {
                         userType = "";
+                    }
                 })
                 .then(() => {
                     this.determineIfAdmin(userType);
@@ -53,11 +87,29 @@ class AppIndex extends Component {
     }
 
     renderContent() {
-        if (this.state.isLoggedIn && !this.state.isAdmin)
-            return (<App />)
-        if (this.state.isLoggedIn && this.state.isAdmin)
-            return (<AdminPage exitAdmin={this.exitAdmin} />)
+        if (this.state.isLoggedIn && !this.state.isAdmin && !this.state.isRakaz && !this.state.isInstructor ) {
+            if (this.state.isfirst.data().first === "true" && this.state.isfirst.data().type === "חונך" && this.state.filled === false) {
+
+                return (<Quest refwin = {this.state.isfirst} complt = {this.filled}/>)
+            }
+            else if (this.state.isfirst.data().first === "true" && this.state.isfirst.data().type === "חניך" && this.state.filled === false) {
+                return (<Queststud refwin = {this.state.isfirst} complt = {this.filled}/>)
+            }
+            return (<App/>)
+        }
+        if (this.state.isLoggedIn && this.state.isAdmin && !this.state.isRakaz && !this.state.isInstructor) {
+            return (<AdminPage exitAdmin={this.exitAdmin}/>)
+        }
+        if (this.state.isLoggedIn && !this.state.isAdmin && this.state.isRakaz && !this.state.isInstructor) {
+            //this.state.isfirst.ref.update({first: "acpt"})
+            return (<RakazPage exitRakaz={this.exitRakaz}/>)
+        }
+        if (this.state.isLoggedIn && !this.state.isAdmin && !this.state.isRakaz && this.state.isInstructor) {
+
+            return (<InstructorPage exitInstructor={this.exitInstructor}/>)
+        }
         else
+
             return (<LoginForm determineIfAdmin={this.determineIfAdmin} isLoggedIn={this.state.isLoggedIn} />)
     }
 
