@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import Meeting from "../navBarComponents/meetingComponents/Meeting";
+import Meetings from "../rakazComponents/Meetings";
 import WallPost from "../navBarComponents/wallComponents/wall/WallPost";
 import Profile from "../navBarComponents/wallComponents/profile/Profile";
 import HomePage from "../navBarComponents/homeComponents/HomePage";
@@ -257,7 +257,8 @@ class App extends Component {
       var mateDoc;
       if (typeof (this.state.userDetails.link_user) === 'undefined' || this.state.userDetails.link_user === "") {
         alert("למשתמש זה אין חונך/חניך. אנא פנה למנהל המערכת עם הודעה זו.");
-        firebase.auth().signOut();
+        this.setState({ loadingLinkedUser: false });
+        this.setState({linkedUserDetails : {fName: "אין", lName: "חונך/חניך" , type: "" , area: "" , birthDate: ""}});
       }
       else {
         this.getLinkedUser();
@@ -266,7 +267,8 @@ class App extends Component {
           .then((doc) => {
             if (!doc.exists || doc.data().link_user === "") {
               alert("למשתמש זה אין חונך/חניך. אנא פנה למנהל המערכת עם הודעה זו.");
-              firebase.auth().signOut();
+              this.setState({ loadingLinkedUser: false });
+              this.setState({linkedUserDetails : {fName: "אין", lName: "חונך/חניך" , type: "" , area: "" , birthDate: ""}});
             }
             else {
               this.setState({ isMounted: true });
@@ -378,7 +380,7 @@ class App extends Component {
             </div>{" "}
             {this.routeToVideo()}
           </Route>{" "}
-          <Route path="/Home">
+          <Route path="/HomePage">
             <HomePage
               myDetails={this.state.userDetails}
               linkedDetails={this.state.linkedUserDetails}
@@ -399,11 +401,11 @@ class App extends Component {
             {this.routeToVideo()}
             {this.routeToMeeting()}
           </Route>{" "}
-          <Route path="/Meeting">
-            <Meeting />
+          <Route path="/Meetings">
+            <Meetings />
             {this.routeToVideo()}
           </Route>{" "}
-          <Redirect push to="/Home" ></Redirect>
+          <Redirect push to="/HomePage" ></Redirect>
         </Switch>
       );
   }
@@ -448,7 +450,7 @@ class App extends Component {
                 <li className="nav-item ">
                   <NavLink
                     className="tab"
-                    to="/Home"
+                    to="/HomePage"
                     activeStyle={activeTabStyle}
                     onClick={(event) => this.checkIfVideo(event)}
                   >
@@ -477,7 +479,7 @@ class App extends Component {
                 <li className="nav-item">
                   <NavLink
                     className="tab"
-                    to="/Meeting"
+                    to="/Meetings"
                     activeStyle={activeTabStyle}
                     onClick={(event) => this.checkIfVideo(event)}
                   >

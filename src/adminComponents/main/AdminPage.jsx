@@ -5,6 +5,8 @@ import DeleteUser from "../partial/DeleteUser";
 import UsersTable from "../partial/UsersTable"
 import LinkUsers from "../partial/LinkUsers";
 import firebase from "../../config/Firebase";
+import Meetings from "../../rakazComponents/Meetings";
+import Home from "../../rakazComponents/Home";
 import logo from '../../static_pictures/big_brothers_big_sisters.png';
 
 import {
@@ -89,57 +91,14 @@ class AdminPage extends Component {
           </nav>
           <Router>
             <div className="sidenav admin-navbar">
-              <ul className="nav">
-                <li className="nav-item text-center">
-                  <NavLink
-                    className="tab"
-                    to="/AdminUser"
-                    activeStyle={activeTabStyle}
-                  >
-                    הוספת משתמש חדש
-                  </NavLink>
-                </li>
-                <li className="nav-item text-center">
-                  <NavLink
-                    className="tab"
-                    to="/UpdateUser"
-                    activeStyle={activeTabStyle}
-                  >
-                    עדכון פרטי משתמש
-                  </NavLink>
-                </li>
-                <li className="nav-item text-center">
-                  <NavLink
-                    className="tab"
-                    to="/DeleteUser"
-                    activeStyle={activeTabStyle}
-                  >
-                    מחיקת משתמש
-                  </NavLink>
-                </li>
-                <li className="nav-item text-center">
-                  <NavLink
-                    className="tab"
-                    to="/LinkUsers"
-                    activeStyle={activeTabStyle}
-                  >
-                    קישור חונך לחניך
-                  </NavLink>
-                </li>
-                <li className="nav-item text-center">
-                  <NavLink
-                    className="tab"
-                    to="/UsersTable"
-                    activeStyle={activeTabStyle}
-                  >
-                    רשימת חונכים/ חניכים
-                  </NavLink>
-                </li>
-              </ul>
+              {this.addUser(activeTabStyle)}
             </div>{" "}
             {/* A <Switch> looks through its children <Route>s and
                                                     renders the first one that matches the current URL. */}{" "}
             <Switch>
+            <Route path="/Home">
+                <Home />
+                </Route>
               <Route path="/AdminUser">
                 <AdminUser />
               </Route>
@@ -155,11 +114,88 @@ class AdminPage extends Component {
               <Route path="/LinkUsers">
                 <LinkUsers />
               </Route>{" "}
+              <Route path="/Meetings">
+                <Meetings />
+             </Route>{" "}
             </Switch>{" "}
           </Router>{" "}
         </div>
       </div>
     );
+  }
+
+
+  addUser(activeTabStyle)
+  {
+    return(
+        <ul className="nav">
+          <li className="nav-item text-center">
+            <NavLink
+                className="tab"
+                to="/Home"
+                activeStyle={activeTabStyle}
+            >
+              <div className= "bait">
+              דף הבית 
+              </div>
+            </NavLink>
+          </li>
+          <li className="nav-item text-center">
+            <NavLink
+                className="tab"
+                to="/AdminUser"
+                activeStyle={activeTabStyle}
+            >
+              הוספת משתמש חדש
+            </NavLink>
+          </li>
+          <li className="nav-item text-center">
+            <NavLink
+                className="tab"
+                to="/UpdateUser"
+                activeStyle={activeTabStyle}
+            >
+              עדכון פרטי משתמש
+            </NavLink>
+          </li>
+          <li className="nav-item text-center">
+            <NavLink
+                className="tab"
+                to="/DeleteUser"
+                activeStyle={activeTabStyle}
+            >
+              מחיקת משתמש
+            </NavLink>
+          </li>
+          <li className="nav-item text-center">
+            <NavLink
+                className="tab"
+                to="/LinkUsers"
+                activeStyle={activeTabStyle}
+            >
+              קישור חונך לחניך
+            </NavLink>
+          </li>
+          <li className="nav-item text-center">
+            <NavLink
+                className="tab"
+                to="/UsersTable"
+                activeStyle={activeTabStyle}
+            >
+              רשימת חונכים/ חניכים
+            </NavLink>
+          </li>
+          <li className="nav-item text-center">
+            <NavLink
+                className="tab"
+                to="/Meetings"
+                activeStyle={activeTabStyle}
+            >
+              קביעת פגשים
+            </NavLink>
+          </li>
+        </ul>
+    )
   }
 }
 
