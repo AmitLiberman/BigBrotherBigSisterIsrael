@@ -1,5 +1,8 @@
+import Zoom from "../Zoom/Zoom"
+import Video from "../Video/Video";
 import React, { Component } from "react";
-import Meeting from "../navBarComponents/meetingComponents/Meeting";
+import Meetings from "../rakazComponents/Meetings";
+import Chat from "../Chat/Chat"
 import WallPost from "../navBarComponents/wallComponents/wall/WallPost";
 import Profile from "../navBarComponents/wallComponents/profile/Profile";
 import HomePage from "../navBarComponents/homeComponents/HomePage";
@@ -7,7 +10,7 @@ import VideoPage from "../navBarComponents/videoComponents/main/VideoPage";
 import ChangePassword from "./ChangePassword"
 import "./App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
-import firebase from "../config/Firebase"
+import firebase, {auth} from "../config/Firebase"
 import Loader from 'react-loader-spinner'
 import logo from '../static_pictures/big_brothers_big_sisters.png'
 import {
@@ -17,6 +20,7 @@ import {
   NavLink,
   Redirect,
 } from "react-router-dom";
+import Home from "../rakazComponents/Home";
 
 class App extends Component {
   constructor(props) {
@@ -24,11 +28,13 @@ class App extends Component {
     this.state = {
       userDetails: {
         fName: "",
-        lName: ""
+        lName: "",
+        type: ""
       },
       linkedUserDetails: {
         fName: "",
-        lName: ""
+        lName: "",
+        type: ""
       },
       isMounted: false,
       loadingUser: true,
@@ -184,7 +190,7 @@ class App extends Component {
     });
   }
 
-  removeDocs = () => {
+  removeDocs = () => {/*
     var ref = this.usersRef
       .doc(this.state.userDetails.link_user)
       .collection('Rooms');
@@ -212,7 +218,7 @@ class App extends Component {
       })
       .catch(() => {
         console.log("Problem in removing Doc")
-      })
+      })*/
   }
 
   updateDisconnection = () => {
@@ -238,35 +244,54 @@ class App extends Component {
       .catch((e) => console.log(e.name));
   }
 
-  changeProfilePictue = (url) => {
+  changeProfilePicture = (url) => {
     this.setState({ profilePicture: url });
   }
 
   componentDidMount() {
-    var webSiteWidth = 1280;
-    var webScale = window.screen.width / webSiteWidth
-    document.querySelector('meta[name="viewport"]').setAttribute('content', 'width=' + webSiteWidth + ', initial-scale=' + webScale + '');
+    auth.onAuthStateChanged(user=> {
+      console.log(user)
+      if (!user) {
+        window.location.href = "/"
+        return
+      }
+      var webSiteWidth = 1280;
+      var webScale = window.screen.width / webSiteWidth
+      document.querySelector('meta[name="viewport"]').setAttribute('content', 'width=' + webSiteWidth + ', initial-scale=' + webScale + '');
 
-    window.addEventListener("resize", this.resizeWin);
-    this.getUserName();
-    this.getProfilePictures();
+      window.addEventListener("resize", this.resizeWin);
+      this.getUserName();
+      this.getProfilePictures();
+    })
   }
 
   componentDidUpdate(prevProp, prevState) {
     if (this.state.userDetails.email !== prevState.userDetails.email) {
       var mateDoc;
-      if (typeof (this.state.userDetails.link_user) === 'undefined' || this.state.userDetails.link_user === "") {
-        alert("למשתמש זה אין חונך/חניך. אנא פנה למנהל המערכת עם הודעה זו.");
-        firebase.auth().signOut();
+      if ((typeof (this.state.userDetails.link_user) === 'undefined' || this.state.userDetails.link_user === "") && this.state.userDetails.type === "חניך") {
+        alert("למשתמש זה אין חונך. אנא פנה למנהל המערכת עם הודעה זו.");
+        this.setState({ loadingLinkedUser: false });
+        this.setState({linkedUserDetails : {fName: "אין", lName: "חונך" , type: "" , area: "" , birthDate: ""}});
+      }
+      else if ((typeof (this.state.userDetails.link_user) === 'undefined' || this.state.userDetails.link_user === "") && this.state.userDetails.type === "חונך") {
+        alert("למשתמש זה אין חניך. אנא פנה למנהל המערכת עם הודעה זו.");
+        this.setState({ loadingLinkedUser: false });
+        this.setState({linkedUserDetails : {fName: "אין", lName: "חניך" , type: "" , area: "" , birthDate: ""}});
       }
       else {
         this.getLinkedUser();
         mateDoc = firebase.firestore().collection('Users').doc(this.state.userDetails.link_user);
         mateDoc.get()
           .then((doc) => {
-            if (!doc.exists || doc.data().link_user === "") {
-              alert("למשתמש זה אין חונך/חניך. אנא פנה למנהל המערכת עם הודעה זו.");
-              firebase.auth().signOut();
+            if ((!doc.exists || doc.data().link_user === "") && this.state.linkedUserDetails.type === "חניך") {
+              alert("למשתמש זה אין חונך. אנא פנה למנהל המערכת עם הודעה זו.");
+              this.setState({ loadingLinkedUser: false });
+              this.setState({linkedUserDetails : {fName: "אין", lName: "חונך" , type: "" , area: "" , birthDate: ""}});
+            }
+            else if ((!doc.exists || doc.data().link_user === "") && this.state.linkedUserDetails.type === "חונך") {
+              alert("למשתמש זה אין חניך. אנא פנה למנהל המערכת עם הודעה זו.");
+              this.setState({ loadingLinkedUser: false });
+              this.setState({linkedUserDetails : {fName: "אין", lName: "חניך" , type: "" , area: "" , birthDate: ""}});
             }
             else {
               this.setState({ isMounted: true });
@@ -303,11 +328,11 @@ class App extends Component {
       e.preventDefault();
   }
 
-  routeToVideo = () => {
+  routeToVideo = () => {/*
     if (this.state.directVid)
       return (<Redirect push to="/VideoPage" ></Redirect>);
     return null;
-  }
+  */}
 
   getWallRouteStatus = () => {
     this.setState({ routeToWall: true })
@@ -332,19 +357,8 @@ class App extends Component {
     }
     return null;
   }
-
-  waitUntilPageIsLoaded = () => {
-    if (this.state.loadingUser || this.state.loadingLinkedUser)
-      return (
-        <div className="loader-element">
-          <h1>אנא המתן... </h1>
-          <Loader color="#776078" width="300px" height="300px" type="Bars" />
-        </div>
-      );
-    else
-      return (
-        <Switch>
-          <Route path="/VideoPage">
+  /*
+    <Route path="/VideoPage">
             <VideoPage
               userName={this.state.userDetails.fName}
               linkedName={this.state.linkedUserDetails.fName}
@@ -359,6 +373,38 @@ class App extends Component {
             />
 
           </Route>{" "}
+  */
+  waitUntilPageIsLoaded = () => {
+    if (this.state.loadingUser || this.state.loadingLinkedUser)
+      return (
+        <div className="loader-element">
+          <h1>אנא המתן... </h1>
+          <Loader color="#776078" width="300px" height="300px" type="Bars" />
+        </div>
+      );
+    else
+      return (
+        <Switch>
+
+          {/*<Route path="/HomePage">*/}
+          {/*  <HomePage*/}
+          {/*      myDetails={this.state.userDetails}*/}
+          {/*      linkedDetails={this.state.linkedUserDetails}*/}
+          {/*      directVid={this.directVid}*/}
+          {/*      newVideo={this.state.newVideo}*/}
+          {/*      otherUserConnection={this.state.otherUserConnection}*/}
+          {/*      otherUserLastOnline={this.state.otherUserLastOnline}*/}
+          {/*      next_meeting={this.state.next_meeting}*/}
+          {/*      getNextMeeting={this.getNextMeeting}*/}
+          {/*      loadingNextMeeting={this.state.loadingNextMeeting}*/}
+          {/*      routeToWall={this.getWallRouteStatus}*/}
+          {/*      routeToMeeting={this.getMeetingRouteStatus}*/}
+          {/*      myProfilePic={this.state.profilePicture}*/}
+          {/*      friendProfilePic={this.state.friendProfile}*/}
+          {/*      changeProfilePicture={this.changeProfilePicture}*/}
+          {/*  /></Route>*/}
+
+
           <Route path="/Wall">
             <div className="app-page">
               <Profile
@@ -378,7 +424,7 @@ class App extends Component {
             </div>{" "}
             {this.routeToVideo()}
           </Route>{" "}
-          <Route path="/Home">
+          <Route path="/HomePage">
             <HomePage
               myDetails={this.state.userDetails}
               linkedDetails={this.state.linkedUserDetails}
@@ -393,17 +439,22 @@ class App extends Component {
               routeToMeeting={this.getMeetingRouteStatus}
               myProfilePic={this.state.profilePicture}
               friendProfilePic={this.state.friendProfile}
-              changeProfilePictue={this.changeProfilePictue}
+              changeProfilePicture={this.changeProfilePicture}
             />
+
             {this.routeToWall()}
             {this.routeToVideo()}
             {this.routeToMeeting()}
           </Route>{" "}
-          <Route path="/Meeting">
-            <Meeting />
+          <Route path="/Meetings">
+            <Meetings />
             {this.routeToVideo()}
           </Route>{" "}
-          <Redirect push to="/Home" ></Redirect>
+          <Route path="/Chat">
+            <Chat />
+          </Route>{" "}
+          {/*<Route exact path={"/zoom"} component={Zoom}/>*/}
+          <Route exact path={"/video"} component={Video}/>
         </Switch>
       );
   }
@@ -425,11 +476,34 @@ class App extends Component {
 
   render() {
 
+
     const activeTabStyle = {
       fontWeight: "bold",
       backgroundColor: "#4CAF50",
     };
 
+
+      // <li className="nav-item ">
+      //             <NavLink
+      //               className="tab"
+      //               to="/Wall"
+      //               activeStyle={activeTabStyle}
+      //               onClick={(event) => this.checkIfVideo(event)}
+      //             >
+      //               קיר{" "}
+      //             </NavLink>{" "}
+      // </li>{" "}
+                /*
+                <li className="nav-item ">
+                  <NavLink
+                    className="tab"
+                    to="/VideoPage"
+                    activeStyle={activeTabStyle}
+                  >
+                    שיחת וידאו{" "}
+                  </NavLink>{" "}
+                </li>{" "}
+     */
     return (
       <div className="main-page-app" style={{ zoom: this.state.zoom }}>
         <Router>
@@ -448,40 +522,53 @@ class App extends Component {
                 <li className="nav-item ">
                   <NavLink
                     className="tab"
-                    to="/Home"
+                    to="/HomePage"
                     activeStyle={activeTabStyle}
                     onClick={(event) => this.checkIfVideo(event)}
                   >
                     בית{" "}
                   </NavLink>{" "}
                 </li>{" "}
+                {/*<li className="nav-item ">*/}
+                {/*  <NavLink*/}
+                {/*      className="tab"*/}
+                {/*      to="/Zoom"*/}
+                {/*     */}
+                {/*  >*/}
+                {/*    שיחת וידאו{" "}*/}
+                {/*  </NavLink>{" "}*/}
+                {/*</li>{" "}*/}
+
+
                 <li className="nav-item ">
                   <NavLink
-                    className="tab"
-                    to="/Wall"
-                    activeStyle={activeTabStyle}
-                    onClick={(event) => this.checkIfVideo(event)}
-                  >
-                    קיר{" "}
-                  </NavLink>{" "}
-                </li>{" "}
-                <li className="nav-item ">
-                  <NavLink
-                    className="tab"
-                    to="/VideoPage"
-                    activeStyle={activeTabStyle}
+                      className="tab"
+                      to="/Video"
+
                   >
                     שיחת וידאו{" "}
                   </NavLink>{" "}
                 </li>{" "}
+
+
                 <li className="nav-item">
                   <NavLink
                     className="tab"
-                    to="/Meeting"
+                    to="/Meetings"
                     activeStyle={activeTabStyle}
                     onClick={(event) => this.checkIfVideo(event)}
                   >
                     קביעת פגישה{" "}
+                  </NavLink>{" "}
+                </li>{" "}
+                <li className="nav-item">
+                  <NavLink
+                      className="tab"
+                      to="/Chat"
+                      activeStyle={activeTabStyle}
+
+                  >
+                    Chat{" "}
                   </NavLink>{" "}
                 </li>{" "}
               </ul>{" "}

@@ -1,6 +1,6 @@
 import * as React from "react";
 import "./HomePage.css";
-import firebase from "../../config/Firebase"
+import firebase, {auth} from "../../config/Firebase"
 import AddPicture from "../wallComponents/wall/AddPicture"
 import NewsList from "./NewsList"
 import logo from '../../static_pictures/no_profile_picture.png'
@@ -22,6 +22,9 @@ export class HomePage extends React.Component {
   }
 
   formatDate = (date) => { // formatting date to [DD/MM/YYYY]
+    if (isNaN(date.getMonth())) {
+      return null;
+    }
     return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`
   }
 
@@ -64,10 +67,17 @@ export class HomePage extends React.Component {
   }
 
   componentDidMount() {
-    this.setVideoButton();
-    this.props.getNextMeeting();
-    this.setState({ profilePicture: this.props.myProfilePic });
-    this.getNewPostAlert();
+    auth.onAuthStateChanged(user=> {
+      console.log(user)
+      if (!user) {
+        window.location.href = "/"
+        return
+      }
+      this.setVideoButton();
+      this.props.getNextMeeting();
+      this.setState({profilePicture: this.props.myProfilePic});
+      this.getNewPostAlert();
+    })
   }
 
   componentDidUpdate(prevProp) {
@@ -90,13 +100,13 @@ export class HomePage extends React.Component {
     this.myProfilePicturesRef.delete()
       .then(() => {
         console.log("Deleted profile picture successfully")
-        this.props.changeProfilePictue("")
+        this.props.changeProfilePicture("")
       })
       .catch((e) => console.log(e.name));
   }
 
   setProfilePicture = (pictures, url) => {
-    this.props.changeProfilePictue(url);
+    this.props.changeProfilePicture(url);
     this.myProfilePicturesRef.put(pictures[0]);
   };
 
@@ -125,7 +135,7 @@ export class HomePage extends React.Component {
               </div>
             </div>
           </div>
-          <div className="homepage-background-left">
+          {/* <div className="homepage-background-left">
             <div className="homepage-left">
               <div className="homepage-profile-top">
                 <div className="homepage-profile-name">
@@ -145,16 +155,16 @@ export class HomePage extends React.Component {
                 </div>
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
         <button className="btn btn-success profile-upload-btn" onClick={this.uploadProfilePicture}>שנה תמונת פרופיל</button>
         <button className="btn btn-danger profile-delete-btn" onClick={this.deleteProfilePicture}>הסר תמונת פרופיל</button>
         <NewsList
-          linked_name={this.props.linkedDetails.fName}
+          // linked_name={this.props.linkedDetails.fName}
           connectToVideo={this.connectToVideo}
           vidButtonHide={this.state.vidButtonHide}
-          otherUserConnection={this.props.otherUserConnection}
-          otherUserLastOnline={this.props.otherUserLastOnline}
+          // otherUserConnection={this.props.otherUserConnection}
+          // otherUserLastOnline={this.props.otherUserLastOnline}
           next_meeting={this.props.next_meeting}
           loadingNextMeeting={this.props.loadingNextMeeting}
           routeToWall={this.props.routeToWall}

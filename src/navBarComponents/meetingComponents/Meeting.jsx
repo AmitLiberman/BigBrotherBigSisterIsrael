@@ -1,6 +1,6 @@
 import React, { Component } from "react";
-import "./Meeting.css";
-import firebase from "../../config/Firebase"
+import "./Meetings.css";
+import firebase, {auth} from "../../config/Firebase"
 import MeetingList from "./MeetingList"
 
 class Meeting extends Component {
@@ -56,7 +56,14 @@ class Meeting extends Component {
   }
 
   componentDidMount() {
-    this.getMeetings();
+    auth.onAuthStateChanged(user=> {
+      console.log(user)
+      if (!user) {
+        window.location.href = "/"
+        return
+      }
+      this.getMeetings();
+    })
   }
 
   updateTableAfterDelete = (meetingsArr) => {
@@ -274,14 +281,19 @@ class Meeting extends Component {
               checked={this.state.scheduled}
               onChange={(e) => this.setState({ scheduled: !this.state.scheduled })}
             />
+            
+          </div>
+          
             <label
               className="form-check-label check-meeting-lbl w-75"
-              style={{ float: "right" }}
+              style={{ float: "right"  }}
               htmlFor="description"
             >
+              <div className = "meeting-thi">
               פגישות קבועות - לשלושת החודשים הקרובים
+              </div>
             </label>
-          </div>
+            
           <br />
           <button
             className="btn btn-success setup-meeting-btn"
@@ -292,6 +304,7 @@ class Meeting extends Component {
         </form>
         {this.getTable()}
       </div >
+      
     );
   }
 }
